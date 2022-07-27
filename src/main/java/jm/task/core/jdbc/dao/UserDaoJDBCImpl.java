@@ -1,8 +1,6 @@
 package jm.task.core.jdbc.dao;
 
 import jm.task.core.jdbc.model.User;
-
-import jm.task.core.jdbc.model.User;
 import jm.task.core.jdbc.util.Util;
 
 import java.sql.PreparedStatement;
@@ -13,13 +11,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class UserDaoJDBCImpl implements UserDao {
-    private static final String creationString = "create table if not exists user(id INTEGER NOT NULL AUTO_INCREMENT, " +
-            "name char(30) not null, lastName char(30) not null, age smallint not null, primary key (id))";
-    private static final String droppingString = "drop table  IF EXISTS user";
-    private static final String savingString = "INSERT INTO user (name,lastName,age) values(?,?,?)";
-    private static final String deletingString = "DELETE FROM user WHERE id = ?";
-    private static final String selectingString = "select * from user";
-    private static final String truncatingString = "TRUNCATE TABLE user";
 
     public UserDaoJDBCImpl() {
 
@@ -27,7 +18,8 @@ public class UserDaoJDBCImpl implements UserDao {
 
     public void createUsersTable() {
         try (Statement statement = Util.getConnection().createStatement()) {
-            statement.executeUpdate(creationString);
+            statement.executeUpdate("create table if not exists user(id INTEGER NOT NULL AUTO_INCREMENT, " +
+                    "name char(30) not null, lastName char(30) not null, age smallint not null, primary key (id))");
         } catch (ClassNotFoundException | SQLException e) {
             throw new RuntimeException(e);
         }
@@ -35,7 +27,7 @@ public class UserDaoJDBCImpl implements UserDao {
 
     public void dropUsersTable() {
         try (Statement statement = Util.getConnection().createStatement()) {
-            statement.execute(droppingString);
+            statement.execute("drop table  IF EXISTS user");
         } catch (ClassNotFoundException | SQLException e) {
             throw new RuntimeException(e);
         }
@@ -44,7 +36,7 @@ public class UserDaoJDBCImpl implements UserDao {
     public void saveUser(String name, String lastName, byte age) {
         try {
             PreparedStatement preparedStatement = Util.getConnection().
-                    prepareStatement(savingString);
+                    prepareStatement("INSERT INTO user (name,lastName,age) values(?,?,?)");
             preparedStatement.setString(1, name);
             preparedStatement.setString(2, lastName);
             preparedStatement.setByte(3, age);
@@ -59,7 +51,7 @@ public class UserDaoJDBCImpl implements UserDao {
         PreparedStatement preparedStatement = null;
         try {
             preparedStatement = Util.getConnection().
-                    prepareStatement(deletingString);
+                    prepareStatement("DELETE FROM user WHERE id = ?");
             preparedStatement.setLong(1, id);
             preparedStatement.executeUpdate();
         } catch (SQLException e) {
@@ -73,7 +65,7 @@ public class UserDaoJDBCImpl implements UserDao {
         List<User> users = new ArrayList<>();
 
         try (Statement statement = Util.getConnection().createStatement()) {
-            ResultSet resultSet = statement.executeQuery(selectingString);
+            ResultSet resultSet = statement.executeQuery("select * from user");
             while (resultSet.next()) {
 
                 String name = resultSet.getString("name");
@@ -94,7 +86,7 @@ public class UserDaoJDBCImpl implements UserDao {
 
     public void cleanUsersTable() {
         try (Statement statement = Util.getConnection().createStatement()) {
-            statement.executeUpdate(truncatingString);
+            statement.executeUpdate("TRUNCATE TABLE user");
         } catch (ClassNotFoundException | SQLException e) {
             throw new RuntimeException(e);
         }
